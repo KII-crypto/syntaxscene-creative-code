@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { VideoStudio } from "@/components/VideoStudio";
 
-const title = "SyntaxScene by KII";
+const title = "SyntaxScene by KII — Turn Photos into AI Videos";
 const description =
-  "SyntaxScene by Kunene Intelligence Industries — modern, reliable and user-friendly websites, built with purpose.";
+  "Upload a photo, describe the motion, and SyntaxScene by KII turns it into a short AI-generated video you can download.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -38,6 +39,7 @@ function useReveal<T extends HTMLElement>() {
 
 function Index() {
   const hero = useReveal<HTMLElement>();
+  const studio = useReveal<HTMLElement>();
   const about = useReveal<HTMLElement>();
   const year = new Date().getFullYear();
 
@@ -52,6 +54,11 @@ function Index() {
             <li>
               <a href="#home" className="transition-colors duration-300 hover:text-primary">
                 Home
+              </a>
+            </li>
+            <li>
+              <a href="#studio" className="transition-colors duration-300 hover:text-primary">
+                Studio
               </a>
             </li>
             <li>
@@ -72,14 +79,26 @@ function Index() {
           <h1 className="mb-2.5 text-[50px] font-bold md:text-[72px]">SyntaxScene</h1>
           <h3 className="mb-5 text-xl font-medium text-primary">by KII</h3>
           <p className="mb-9 max-w-[600px] text-lg text-body-text">
-            Modern websites, built with purpose.
+            Turn your photos into motion. AI-generated videos, built with purpose.
           </p>
           <a
-            href="#about"
+            href="#studio"
             className="rounded-[10px] bg-primary px-9 py-4 text-primary-foreground transition-all duration-300 hover:-translate-y-[3px] hover:scale-105 hover:bg-primary-hover"
           >
-            Learn More
+            Create a video
           </a>
+        </section>
+
+        <section
+          id="studio"
+          ref={studio.ref}
+          className={`px-5 py-[70px] md:px-[30px] md:py-[100px] ${studio.className}`}
+        >
+          <h2 className="mb-3 text-center text-[40px] font-bold">Photo to Video Studio</h2>
+          <p className="mx-auto mb-10 max-w-[600px] text-center text-body-text">
+            Upload a photo, describe how it should move, and our AI brings it to life.
+          </p>
+          <VideoStudio />
         </section>
 
         <section
