@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiVideoCreateRouteImport } from './routes/api/video/create'
+import { Route as ApiVideoStatusRouteImport } from './routes/api/video/status'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const ApiVideoCreateRoute = ApiVideoCreateRouteImport.update({
   path: '/api/video/create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiVideoStatusRoute = ApiVideoStatusRouteImport.update({
+  id: '/api/video/status',
+  path: '/api/video/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/video/create': typeof ApiVideoCreateRoute
+  '/api/video/status': typeof ApiVideoStatusRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/video/create': typeof ApiVideoCreateRoute
+  '/api/video/status': typeof ApiVideoStatusRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/video/create': typeof ApiVideoCreateRoute
+  '/api/video/status': typeof ApiVideoStatusRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/video/create'
+  fullPaths: '/' | '/api/video/create' | '/api/video/status'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/video/create'
-  id: '__root__' | '/' | '/api/video/create'
+  to: '/' | '/api/video/create' | '/api/video/status'
+  id: '__root__' | '/' | '/api/video/create' | '/api/video/status'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiVideoCreateRoute: typeof ApiVideoCreateRoute
+  ApiVideoStatusRoute: typeof ApiVideoStatusRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,23 +75,21 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiVideoCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/video/status': {
+      id: '/api/video/status'
+      path: '/api/video/status'
+      fullPath: '/api/video/status'
+      preLoaderRoute: typeof ApiVideoStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiVideoCreateRoute: ApiVideoCreateRoute,
+  ApiVideoStatusRoute: ApiVideoStatusRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
