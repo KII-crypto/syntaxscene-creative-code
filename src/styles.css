@@ -19,6 +19,11 @@
  */
 
 @theme inline {
+  --font-sans: "Poppins", sans-serif;
+  --color-primary-hover: var(--primary-hover);
+  --color-surface-deep: var(--surface-deep);
+  --color-body-text: var(--body-text);
+  --color-footer-text: var(--footer-text);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -63,14 +68,18 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
+  --background: oklch(0.183 0.041 264.5);
+  --foreground: oklch(1 0 0);
+  --card: oklch(0.221 0.04 264.5);
+  --card-foreground: oklch(1 0 0);
+  --popover: oklch(0.221 0.04 264.5);
+  --popover-foreground: oklch(1 0 0);
+  --primary: oklch(0.715 0.145 250.5);
+  --primary-foreground: oklch(1 0 0);
+  --primary-hover: oklch(0.652 0.169 254);
+  --surface-deep: oklch(0.163 0.038 264.5);
+  --body-text: oklch(0.881 0 0);
+  --footer-text: oklch(0.815 0 0);
   --secondary: oklch(0.968 0.007 247.896);
   --secondary-foreground: oklch(0.208 0.042 265.755);
   --muted: oklch(0.968 0.007 247.896);
@@ -137,8 +146,26 @@
     border-color: var(--color-border);
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
   }
+}
+
+@utility reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease;
+}
+
+@utility reveal-show {
+  opacity: 1;
+  transform: none;
 }
