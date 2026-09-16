@@ -1,10 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import { VideoStudio } from "@/components/VideoStudio";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
-const title = "SyntaxScene by KII — Turn Photos into AI Videos";
+import { StudioShell } from "@/components/StudioShell";
+import { Panel } from "@/components/StudioUI";
+
+const title = "SyntaxScene by KII — AI Creative Studio";
 const description =
-  "Upload a photo, describe the motion, and SyntaxScene by KII turns it into a short AI-generated video you can download.";
+  "Create the scene. Bring it to life. SyntaxScene by KII is a creative studio for generating images and animating them into short videos.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -15,113 +16,62 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: description },
     ],
   }),
-  component: Index,
+  component: Home,
 });
 
-function useReveal<T extends HTMLElement>() {
-  const ref = useRef<T | null>(null);
-  const [shown, setShown] = useState(false);
+const features = [
+  {
+    title: "Create Image",
+    body: "Describe a scene in plain words and generate a still image you can download.",
+  },
+  {
+    title: "Animate Image",
+    body: "Upload an image, describe the motion, and turn it into a short video clip.",
+  },
+  {
+    title: "My Creations",
+    body: "Everything you make is kept in your gallery, ready to download or remove.",
+  },
+];
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) setShown(true);
-      });
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  return { ref, className: shown ? "reveal reveal-show" : "reveal" };
-}
-
-function Index() {
-  const hero = useReveal<HTMLElement>();
-  const studio = useReveal<HTMLElement>();
-  const about = useReveal<HTMLElement>();
-  const year = new Date().getFullYear();
-
+function Home() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header>
-        <nav className="fixed top-0 z-50 flex w-full flex-col items-center gap-4 bg-background/85 px-[8%] py-5 backdrop-blur-md md:flex-row md:justify-between md:gap-0">
-          <h2 className="text-[28px] font-bold">
-            SyntaxScene <span className="text-base font-normal text-primary">by KII</span>
-          </h2>
-          <ul className="flex list-none gap-6">
-            <li>
-              <a href="#home" className="transition-colors duration-300 hover:text-primary">
-                Home
-              </a>
-            </li>
-            <li>
-              <a href="#studio" className="transition-colors duration-300 hover:text-primary">
-                Studio
-              </a>
-            </li>
-            <li>
-              <a href="#about" className="transition-colors duration-300 hover:text-primary">
-                About
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </header>
-
-      <main>
-        <section
-          id="home"
-          ref={hero.ref}
-          className={`flex min-h-screen flex-col items-center justify-center p-5 text-center ${hero.className}`}
-        >
-          <h1 className="mb-2.5 text-[50px] font-bold md:text-[72px]">SyntaxScene</h1>
-          <h3 className="mb-5 text-xl font-medium text-primary">by KII</h3>
-          <p className="mb-9 max-w-[600px] text-lg text-body-text">
-            Turn your photos into motion. AI-generated videos, built with purpose.
-          </p>
-          <a
-            href="#studio"
-            className="rounded-[10px] bg-primary px-9 py-4 text-primary-foreground transition-all duration-300 hover:-translate-y-[3px] hover:scale-105 hover:bg-primary-hover"
+    <StudioShell>
+      <section className="mx-auto flex min-h-[78vh] max-w-4xl flex-col items-center justify-center px-5 py-20 text-center">
+        <span className="mb-6 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs tracking-wide text-primary uppercase">
+          Kunene Intelligence Industries
+        </span>
+        <h1 className="text-5xl font-bold tracking-tight md:text-7xl">SyntaxScene</h1>
+        <h2 className="mt-3 text-xl font-medium text-primary">by KII</h2>
+        <p className="mt-6 text-2xl font-light md:text-3xl">Create the scene. Bring it to life.</p>
+        <p className="mt-5 max-w-2xl text-body-text">
+          A creative studio for turning ideas into visuals. Write a prompt to generate an image, then
+          animate any image into a short video — all in one clean, fast workspace.
+        </p>
+        <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+          <Link
+            to="/create"
+            className="rounded-xl bg-primary px-8 py-4 text-primary-foreground transition-all duration-300 hover:-translate-y-[3px] hover:bg-primary-hover"
           >
-            Create a video
-          </a>
-        </section>
+            Create Image
+          </Link>
+          <Link
+            to="/animate"
+            className="rounded-xl border border-white/10 px-8 py-4 text-body-text transition-all duration-300 hover:-translate-y-[3px] hover:border-primary hover:text-primary"
+          >
+            Animate Image
+          </Link>
+        </div>
+      </section>
 
-        <section
-          id="studio"
-          ref={studio.ref}
-          className={`px-5 py-[70px] md:px-[30px] md:py-[100px] ${studio.className}`}
-        >
-          <h2 className="mb-3 text-center text-[40px] font-bold">Photo to Video Studio</h2>
-          <p className="mx-auto mb-10 max-w-[600px] text-center text-body-text">
-            Upload a photo, describe how it should move, and our AI brings it to life.
-          </p>
-          <VideoStudio />
-        </section>
-
-        <section
-          id="about"
-          ref={about.ref}
-          className={`mx-auto max-w-[900px] px-5 py-[70px] md:px-[30px] md:py-[100px] ${about.className}`}
-        >
-          <h2 className="mb-[30px] text-center text-[40px] font-bold">About KII</h2>
-          <p className="mb-5 leading-[1.8] text-body-text">
-            <strong className="text-foreground">KII</strong> stands for{" "}
-            <strong className="text-foreground">Kunene Intelligence Industries.</strong>
-          </p>
-          <p className="mb-5 leading-[1.8] text-body-text">
-            Founded by a young prospective software engineer, KII is focused on creating modern,
-            reliable, and user-friendly websites. Every project is built with creativity, attention
-            to detail, and a passion for technology.
-          </p>
-        </section>
-      </main>
-
-      <footer className="bg-surface-deep p-[30px] text-center text-footer-text">
-        <p>© {year} SyntaxScene by KII. All rights reserved.</p>
-      </footer>
-    </div>
+      <section className="mx-auto grid max-w-6xl gap-5 px-5 pb-24 md:grid-cols-3">
+        {features.map((f) => (
+          <Panel key={f.title}>
+            <h3 className="text-lg font-semibold">{f.title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-body-text">{f.body}</p>
+          </Panel>
+        ))}
+      </section>
+    </StudioShell>
   );
 }
