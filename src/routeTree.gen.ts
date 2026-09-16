@@ -10,69 +10,128 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiVideoContentRouteImport } from './routes/api/video/content'
-import { Route as ApiVideoCreateRouteImport } from './routes/api/video/create'
-import { Route as ApiVideoStatusRouteImport } from './routes/api/video/status'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AnimateRouteImport } from './routes/animate'
+import { Route as CreateRouteImport } from './routes/create'
+import { Route as CreationsRouteImport } from './routes/creations'
+import { Route as ApiGenerateImageRouteImport } from './routes/api/generate/image'
+import { Route as ApiGenerateStatusRouteImport } from './routes/api/generate/status'
+import { Route as ApiGenerateVideoRouteImport } from './routes/api/generate/video'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiVideoContentRoute = ApiVideoContentRouteImport.update({
-  id: '/api/video/content',
-  path: '/api/video/content',
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiVideoCreateRoute = ApiVideoCreateRouteImport.update({
-  id: '/api/video/create',
-  path: '/api/video/create',
+const AnimateRoute = AnimateRouteImport.update({
+  id: '/animate',
+  path: '/animate',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiVideoStatusRoute = ApiVideoStatusRouteImport.update({
-  id: '/api/video/status',
-  path: '/api/video/status',
+const CreateRoute = CreateRouteImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreationsRoute = CreationsRouteImport.update({
+  id: '/creations',
+  path: '/creations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGenerateImageRoute = ApiGenerateImageRouteImport.update({
+  id: '/api/generate/image',
+  path: '/api/generate/image',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGenerateStatusRoute = ApiGenerateStatusRouteImport.update({
+  id: '/api/generate/status',
+  path: '/api/generate/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGenerateVideoRoute = ApiGenerateVideoRouteImport.update({
+  id: '/api/generate/video',
+  path: '/api/generate/video',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/api/video/content': typeof ApiVideoContentRoute
-  '/api/video/create': typeof ApiVideoCreateRoute
-  '/api/video/status': typeof ApiVideoStatusRoute
+  '/about': typeof AboutRoute
+  '/animate': typeof AnimateRoute
+  '/create': typeof CreateRoute
+  '/creations': typeof CreationsRoute
+  '/api/generate/image': typeof ApiGenerateImageRoute
+  '/api/generate/status': typeof ApiGenerateStatusRoute
+  '/api/generate/video': typeof ApiGenerateVideoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/api/video/content': typeof ApiVideoContentRoute
-  '/api/video/create': typeof ApiVideoCreateRoute
-  '/api/video/status': typeof ApiVideoStatusRoute
+  '/about': typeof AboutRoute
+  '/animate': typeof AnimateRoute
+  '/create': typeof CreateRoute
+  '/creations': typeof CreationsRoute
+  '/api/generate/image': typeof ApiGenerateImageRoute
+  '/api/generate/status': typeof ApiGenerateStatusRoute
+  '/api/generate/video': typeof ApiGenerateVideoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/api/video/content': typeof ApiVideoContentRoute
-  '/api/video/create': typeof ApiVideoCreateRoute
-  '/api/video/status': typeof ApiVideoStatusRoute
+  '/about': typeof AboutRoute
+  '/animate': typeof AnimateRoute
+  '/create': typeof CreateRoute
+  '/creations': typeof CreationsRoute
+  '/api/generate/image': typeof ApiGenerateImageRoute
+  '/api/generate/status': typeof ApiGenerateStatusRoute
+  '/api/generate/video': typeof ApiGenerateVideoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/api/video/content' | '/api/video/create' | '/api/video/status'
+    | '/'
+    | '/about'
+    | '/animate'
+    | '/create'
+    | '/creations'
+    | '/api/generate/image'
+    | '/api/generate/status'
+    | '/api/generate/video'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/video/content' | '/api/video/create' | '/api/video/status'
+  to:
+    | '/'
+    | '/about'
+    | '/animate'
+    | '/create'
+    | '/creations'
+    | '/api/generate/image'
+    | '/api/generate/status'
+    | '/api/generate/video'
   id:
     | '__root__'
     | '/'
-    | '/api/video/content'
-    | '/api/video/create'
-    | '/api/video/status'
+    | '/about'
+    | '/animate'
+    | '/create'
+    | '/creations'
+    | '/api/generate/image'
+    | '/api/generate/status'
+    | '/api/generate/video'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ApiVideoContentRoute: typeof ApiVideoContentRoute
-  ApiVideoCreateRoute: typeof ApiVideoCreateRoute
-  ApiVideoStatusRoute: typeof ApiVideoStatusRoute
+  AboutRoute: typeof AboutRoute
+  AnimateRoute: typeof AnimateRoute
+  CreateRoute: typeof CreateRoute
+  CreationsRoute: typeof CreationsRoute
+  ApiGenerateImageRoute: typeof ApiGenerateImageRoute
+  ApiGenerateStatusRoute: typeof ApiGenerateStatusRoute
+  ApiGenerateVideoRoute: typeof ApiGenerateVideoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -84,25 +143,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/video/content': {
-      id: '/api/video/content'
-      path: '/api/video/content'
-      fullPath: '/api/video/content'
-      preLoaderRoute: typeof ApiVideoContentRouteImport
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/video/create': {
-      id: '/api/video/create'
-      path: '/api/video/create'
-      fullPath: '/api/video/create'
-      preLoaderRoute: typeof ApiVideoCreateRouteImport
+    '/animate': {
+      id: '/animate'
+      path: '/animate'
+      fullPath: '/animate'
+      preLoaderRoute: typeof AnimateRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/video/status': {
-      id: '/api/video/status'
-      path: '/api/video/status'
-      fullPath: '/api/video/status'
-      preLoaderRoute: typeof ApiVideoStatusRouteImport
+    '/create': {
+      id: '/create'
+      path: '/create'
+      fullPath: '/create'
+      preLoaderRoute: typeof CreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/creations': {
+      id: '/creations'
+      path: '/creations'
+      fullPath: '/creations'
+      preLoaderRoute: typeof CreationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/generate/image': {
+      id: '/api/generate/image'
+      path: '/api/generate/image'
+      fullPath: '/api/generate/image'
+      preLoaderRoute: typeof ApiGenerateImageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/generate/status': {
+      id: '/api/generate/status'
+      path: '/api/generate/status'
+      fullPath: '/api/generate/status'
+      preLoaderRoute: typeof ApiGenerateStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/generate/video': {
+      id: '/api/generate/video'
+      path: '/api/generate/video'
+      fullPath: '/api/generate/video'
+      preLoaderRoute: typeof ApiGenerateVideoRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -110,10 +197,24 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ApiVideoContentRoute: ApiVideoContentRoute,
-  ApiVideoCreateRoute: ApiVideoCreateRoute,
-  ApiVideoStatusRoute: ApiVideoStatusRoute,
+  AboutRoute: AboutRoute,
+  AnimateRoute: AnimateRoute,
+  CreateRoute: CreateRoute,
+  CreationsRoute: CreationsRoute,
+  ApiGenerateImageRoute: ApiGenerateImageRoute,
+  ApiGenerateStatusRoute: ApiGenerateStatusRoute,
+  ApiGenerateVideoRoute: ApiGenerateVideoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
