@@ -8,33 +8,34 @@ import {
 /**
  * Image generation service adapter.
  *
- * Default backend: Hugging Face Inference (open-source models, free tier).
+ * Default backend: Hugging Face router (open-source models, your own HF account).
  * Independent of Lovable AI and Lovable credits.
  *
  * Environment variables:
  *   HUGGINGFACE_API_KEY - Hugging Face access token (hf_...)
  *   IMAGE_MODEL_ID      - optional, defaults to black-forest-labs/FLUX.1-schnell
+ *   IMAGE_ROUTER_URL    - optional, defaults to the nscale OpenAI-compatible route
  *   IMAGE_API_URL       - optional, full URL of a completely custom endpoint
  *   IMAGE_API_KEY       - optional bearer token for that custom endpoint
  */
 
 const DEFAULT_MODEL = "black-forest-labs/FLUX.1-schnell";
+const DEFAULT_ROUTER = "https://router.huggingface.co/nscale/v1/images/generations";
 
-function hfModel() {
+function model() {
   return process.env["IMAGE_MODEL_ID"] || DEFAULT_MODEL;
 }
 
 export function getImageProviderStatus(): ProviderStatus {
   const custom = process.env["IMAGE_API_URL"];
   const hf = process.env["HUGGINGFACE_API_KEY"];
-  const configured = Boolean(custom || hf);
   return {
     name: "Image service",
-    configured,
+    configured: Boolean(custom || hf),
     message: custom
       ? "A custom image model endpoint is connected."
       : hf
-        ? `Connected to the open-source model ${hfModel()} on Hugging Face.`
+        ? `Connected to the open model ${model()} on Hugging Face.`
         : "No image model is connected yet. Add a Hugging Face access token or set IMAGE_API_URL.",
   };
 }
@@ -50,33 +51,29 @@ export async function generateImage(req: ImageRequest): Promise<ImageResult> {
     );
   }
 
-  const res = await fetch(`https://router.huggingface.co/hf-inference/models/${hfModel()}`, {
+  const res = await fetch(process.env["IMAGE_ROUTER_URL"] || DEFAULT_ROUTER, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
-      Accept: "image/png",
     },
     body: JSON.stringify({
-      inputs: req.prompt,
-      options: { wait_for_model: true },
+      model: model(),
+      prompt: req.prompt,
+      response_format: "b64_json",
     }),
   });
 
-  if (!res.ok) {
-    throw new Error(await describeHfError(res));
-  }
+  if (!res.ok) throw new Error(await describeHfError(res));
 
-  const type = res.headers.get("content-type") ?? "";
-  if (type.includes("application/json")) {
-    const data = (await res.json()) as { error?: string; image?: string };
-    if (data.image) return { url: toDataUrl(data.image, "image/png") };
-    throw new Error(data.error ?? "The image service returned no image.");
-  }
-
-  const bytes = new Uint8Array(await res.arrayBuffer());
-  if (bytes.byteLength === 0) throw new Error("The image service returned no image.");
-  return { url: `data:${type || "image/png"};base64,${toBase64(bytes)}` };
+  const data = (await res.json()) as {
+    data?: Array<{ b64_json?: string; url?: string }>;
+    error?: string;
+  };
+  const first = data.data?.[0];
+  const raw = first?.b64_json ?? first?.url;
+  if (!raw) throw new Error(data.error ?? "The image service returned no image.");
+  return { url: toDataUrl(raw, "image/png") };
 }
 
 async function generateViaCustom(url: string, req: ImageRequest): Promise<ImageResult> {
@@ -118,16 +115,20 @@ export async function describeHfError(res: Response) {
   const text = await res.text().catch(() => "");
   let message = text.slice(0, 300);
   try {
-    const parsed = JSON.parse(text) as { error?: string | string[] };
-    if (parsed.error) message = Array.isArray(parsed.error) ? parsed.error.join(" ") : parsed.error;
+    const parsed = JSON.parse(text) as { error?: string | string[]; message?: string };
+    const err = parsed.error ?? parsed.message;
+    if (err) message = Array.isArray(err) ? err.join(" ") : err;
   } catch {
     /* keep raw text */
   }
   if (res.status === 401 || res.status === 403) {
-    return "Hugging Face rejected the access token. Check that it is valid and has inference permission.";
+    return "Hugging Face rejected the access token. Check that it is valid and allows inference.";
+  }
+  if (res.status === 402) {
+    return "Your Hugging Face account is out of included inference usage for this month.";
   }
   if (res.status === 429) {
-    return "The free Hugging Face tier is rate limited right now. Please wait a moment and try again.";
+    return "Hugging Face is rate limiting right now. Please wait a moment and try again.";
   }
   if (res.status === 503) {
     return "The model is warming up on Hugging Face. Try again in about a minute.";
