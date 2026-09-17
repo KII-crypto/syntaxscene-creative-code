@@ -5,7 +5,7 @@ import { Panel } from "@/components/StudioUI";
 
 const title = "SyntaxScene by KII — AI Creative Studio";
 const description =
-  "Create the scene. Bring it to life. SyntaxScene by KII is a creative studio for generating images and animating them into short videos.";
+  "Create. Animate. Imagine. SyntaxScene by KII is a creative studio for generating images and animating them into short videos.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -43,7 +43,7 @@ function Home() {
         </span>
         <h1 className="text-5xl font-bold tracking-tight md:text-7xl">SyntaxScene</h1>
         <h2 className="mt-3 text-xl font-medium text-primary">by KII</h2>
-        <p className="mt-6 text-2xl font-light md:text-3xl">Create the scene. Bring it to life.</p>
+        <p className="mt-6 text-2xl font-light md:text-3xl">Create. Animate. Imagine.</p>
         <p className="mt-5 max-w-2xl text-body-text">
           A creative studio for turning ideas into visuals. Write a prompt to generate an image, then
           animate any image into a short video — all in one clean, fast workspace.
