@@ -8,57 +8,108 @@ import {
 /**
  * Image generation service adapter.
  *
- * Default backend: Hugging Face router (open-source models, your own HF account).
+ * Default backend: Pollinations (open, free, no account and no credits).
  * Independent of Lovable AI and Lovable credits.
  *
  * Environment variables:
- *   HUGGINGFACE_API_KEY - Hugging Face access token (hf_...)
- *   IMAGE_MODEL_ID      - optional, defaults to black-forest-labs/FLUX.1-schnell
- *   IMAGE_ROUTER_URL    - optional, defaults to the nscale OpenAI-compatible route
+ *   IMAGE_PROVIDER      - "pollinations" (default) or "huggingface"
+ *   IMAGE_MODEL_ID      - optional model id for the selected provider
+ *   HUGGINGFACE_API_KEY - Hugging Face access token (hf_...), huggingface mode only
+ *   IMAGE_ROUTER_URL    - optional, overrides the Hugging Face route
  *   IMAGE_API_URL       - optional, full URL of a completely custom endpoint
  *   IMAGE_API_KEY       - optional bearer token for that custom endpoint
  */
 
-const DEFAULT_MODEL = "black-forest-labs/FLUX.1-schnell";
-const DEFAULT_ROUTER = "https://router.huggingface.co/nscale/v1/images/generations";
+const HF_MODEL = "black-forest-labs/FLUX.1-schnell";
+const HF_ROUTER = "https://router.huggingface.co/nscale/v1/images/generations";
+const FREE_ENDPOINT = "https://image.pollinations.ai/prompt/";
 
-function model() {
-  return process.env["IMAGE_MODEL_ID"] || DEFAULT_MODEL;
+function provider() {
+  return (process.env["IMAGE_PROVIDER"] || "pollinations").toLowerCase();
 }
 
 export function getImageProviderStatus(): ProviderStatus {
   const custom = process.env["IMAGE_API_URL"];
-  const hf = process.env["HUGGINGFACE_API_KEY"];
+  if (custom) {
+    return {
+      name: "Image service",
+      configured: true,
+      message: "A custom image model endpoint is connected.",
+    };
+  }
+  if (provider() === "huggingface") {
+    const hf = Boolean(process.env["HUGGINGFACE_API_KEY"]);
+    return {
+      name: "Image service",
+      configured: hf,
+      message: hf
+        ? `Connected to the open model ${process.env["IMAGE_MODEL_ID"] || HF_MODEL} on Hugging Face.`
+        : "Hugging Face mode is selected but no access token is set.",
+    };
+  }
   return {
     name: "Image service",
-    configured: Boolean(custom || hf),
-    message: custom
-      ? "A custom image model endpoint is connected."
-      : hf
-        ? `Connected to the open model ${model()} on Hugging Face.`
-        : "No image model is connected yet. Add a Hugging Face access token or set IMAGE_API_URL.",
+    configured: true,
+    message: "Connected to a free open image model. No account and no credits needed.",
   };
 }
 
 export async function generateImage(req: ImageRequest): Promise<ImageResult> {
   const custom = process.env["IMAGE_API_URL"];
   if (custom) return generateViaCustom(custom, req);
+  if (provider() === "huggingface") return generateViaHuggingFace(req);
+  return generateFree(req);
+}
 
+/** Free, keyless open model. Returns raw image bytes. */
+async function generateFree(req: ImageRequest): Promise<ImageResult> {
+  const params = new URLSearchParams({
+    width: "1024",
+    height: "1024",
+    nologo: "true",
+    safe: "false",
+    seed: String(Math.floor(Math.random() * 1_000_000)),
+  });
+  const model = process.env["IMAGE_MODEL_ID"];
+  if (model) params.set("model", model);
+
+  const res = await fetch(
+    `${FREE_ENDPOINT}${encodeURIComponent(req.prompt)}?${params.toString()}`,
+    { headers: { Accept: "image/*" } },
+  );
+
+  if (!res.ok) {
+    if (res.status === 429) {
+      throw new Error("The free image model is busy right now. Please try again in a moment.");
+    }
+    const detail = await res.text().catch(() => "");
+    throw new Error(detail.slice(0, 200) || `Image service failed (${res.status}).`);
+  }
+
+  const type = res.headers.get("content-type") ?? "";
+  if (!type.startsWith("image/")) {
+    const detail = await res.text().catch(() => "");
+    throw new Error(detail.slice(0, 200) || "The image service returned no image.");
+  }
+
+  const bytes = new Uint8Array(await res.arrayBuffer());
+  if (bytes.byteLength === 0) throw new Error("The image service returned no image.");
+  return { url: `data:${type};base64,${toBase64(bytes)}` };
+}
+
+async function generateViaHuggingFace(req: ImageRequest): Promise<ImageResult> {
   const token = process.env["HUGGINGFACE_API_KEY"];
   if (!token) {
     throw new ProviderNotConfiguredError(
-      "No image model is connected yet. Connect your own image generation service to start creating.",
+      "Hugging Face mode is selected but no access token is connected.",
     );
   }
 
-  const res = await fetch(process.env["IMAGE_ROUTER_URL"] || DEFAULT_ROUTER, {
+  const res = await fetch(process.env["IMAGE_ROUTER_URL"] || HF_ROUTER, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: model(),
+      model: process.env["IMAGE_MODEL_ID"] || HF_MODEL,
       prompt: req.prompt,
       response_format: "b64_json",
     }),
